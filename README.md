@@ -2,9 +2,9 @@
 A simple tool for changing GI of static objects from Lightmaps to Light Probes. The tool is designed for Unity HDRP
 ___________________________
 
-> The script is useful in situations when there are many objects on which you need to change the GI
+The script is useful in situations when there are many objects on which you need to change the GI
 
-```
+```c#
 using UnityEngine;
 using UnityEditor;
 
