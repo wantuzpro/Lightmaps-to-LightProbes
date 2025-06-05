@@ -1,31 +1,48 @@
 using UnityEngine;
 using UnityEditor;
 
-public class ChangeGlobalIllumination : MonoBehaviour
+public class ChangeGlobalIllumination : EditorWindow
 {
-    [MenuItem("Tools/Change to Lightmaps")]
-    static void ChangeGILightmaps()
+    private int selectedMode = 0;
+    private readonly string[] modeOptions = { "Lightmaps", "LightProbes" };
+
+    [MenuItem("Tools/Global Illumination Changer")]
+    public static void ShowWindow()
     {
-        MeshRenderer[] renderers = FindObjectsOfType<MeshRenderer>();
-
-        foreach (MeshRenderer renderer in renderers)
-        {
-            renderer.receiveGI = ReceiveGI.Lightmaps;
-        }
-
-        Debug.Log("Global Illumination changed to Lightmaps");
+        var window = GetWindow<ChangeGlobalIllumination>("GI Changer");
+        window.minSize = new Vector2(200, 100);
+        window.maxSize = new Vector2(200, 100);
     }
-
-    [MenuItem("Tools/Change to LightProbes")]
-    static void ChangeGILightProbes()
+    private void OnGUI()
     {
-        MeshRenderer[] renderers = FindObjectsOfType<MeshRenderer>();
+        GUILayout.Label("Select global illumination mode", EditorStyles.boldLabel);
+        selectedMode = EditorGUILayout.Popup("Mode:", selectedMode, modeOptions);
+        GUILayout.Space(10);
 
+        if (GUILayout.Button("Apply"))
+        {
+            ApplyGlobalIllumination();
+        }
+        if (GUILayout.Button("Show MeshRenderer count"))
+        {
+            int count = FindObjectsOfType<MeshRenderer>().Length;
+            EditorUtility.DisplayDialog("Information", $"Found {count} MeshRenderer objects in the scene.", "OK");
+        }
+    }
+    private void ApplyGlobalIllumination()
+    {
+        MeshRenderer[] renderers = FindObjectsByType<MeshRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         foreach (MeshRenderer renderer in renderers)
         {
-            renderer.receiveGI = ReceiveGI.LightProbes;
+            if (selectedMode == 0)
+            {
+                renderer.receiveGI = ReceiveGI.Lightmaps;
+            }
+            else
+            {
+                renderer.receiveGI = ReceiveGI.LightProbes;
+            }
         }
-
-        Debug.Log("Global Illumination changed to LightProbes");
+        EditorUtility.DisplayDialog("Global Illumination", $"Global Illumination changed to {modeOptions[selectedMode]} for {renderers.Length} objects.", "OK");
     }
 }
